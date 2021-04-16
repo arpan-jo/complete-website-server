@@ -21,6 +21,12 @@ client.connect(err => {
    const adviceCollection = client.db('taxes').collection('advice');
    const addAdmin = client.db('taxes').collection('admin');
 
+   app.get('/allAdmins', (req, res) => {
+      addAdmin.find({}).toArray((err, documents) => {
+         res.send(documents);
+      });
+   });
+
    app.post('/addAAdmin', (req, res) => {
       const data = req.body;
       console.log(data);
