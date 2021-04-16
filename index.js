@@ -19,27 +19,40 @@ const client = new MongoClient(uri, {
 client.connect(err => {
    console.log(err);
    const adviceCollection = client.db('taxes').collection('advice');
-   const addAdmin = client.db('taxes').collection('admin');
+   const adminCollection = client.db('taxes').collection('admin');
+   const reviewCollection = client.db('taxes').collection('reviews');
 
    app.get('/allAdmins', (req, res) => {
-      addAdmin.find({}).toArray((err, documents) => {
+      adminCollection.find({}).toArray((err, documents) => {
          res.send(documents);
       });
    });
 
    app.post('/addAAdmin', (req, res) => {
       const data = req.body;
-      console.log(data);
-      addAdmin
+      adminCollection
          .insertOne(data)
          .then(result => res.send(result.insertedCount > 0));
    });
 
+   app.get('/loadReviews', (req, res) => {
+      reviewCollection.find({}).toArray((err, documents) => {
+         res.send(documents);
+      });
+   });
+
+   app.post('/addReviews', (req, res) => {
+      const review = req.body.data;
+      reviewCollection
+         .insertOne(review)
+         .then(result => res.send(result.insertedCount > 0));
+   });
+
    app.delete('/deleteAdmin', (req, res) => {
-      const email = req.body;
-      addAdmin
+      const email = req.body.email;
+      adminCollection
          .findOneAndDelete({ email: email })
-         .then(result => console.log(result));
+         .then(result => res.send(result.ok > 0));
    });
 });
 
