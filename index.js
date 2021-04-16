@@ -34,6 +34,13 @@ client.connect(err => {
          .insertOne(data)
          .then(result => res.send(result.insertedCount > 0));
    });
+
+   app.delete('/deleteAdmin', (req, res) => {
+      const email = req.body;
+      addAdmin
+         .findOneAndDelete({ email: email })
+         .then(result => console.log(result));
+   });
 });
 
 app.get('/', (req, res) => {
