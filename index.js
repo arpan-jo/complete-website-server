@@ -19,6 +19,15 @@ const client = new MongoClient(uri, {
 client.connect(err => {
    console.log(err);
    const adviceCollection = client.db('taxes').collection('advice');
+   const addAdmin = client.db('taxes').collection('admin');
+
+   app.post('/addAAdmin', (req, res) => {
+      const data = req.body;
+      console.log(data);
+      addAdmin
+         .insertOne(data)
+         .then(result => res.send(result.insertedCount > 0));
+   });
 });
 
 app.get('/', (req, res) => {
