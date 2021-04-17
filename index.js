@@ -18,21 +18,58 @@ const client = new MongoClient(uri, {
 
 client.connect(err => {
    console.log(err);
-   const adviceCollection = client.db('taxes').collection('advice');
+   const ordersCollection = client.db('taxes').collection('orders');
    const adminCollection = client.db('taxes').collection('admin');
    const reviewCollection = client.db('taxes').collection('reviews');
+   const serviceCollection = client.db('taxes').collection('services');
+
+   app.get('/clientOrders', (req, res) => {
+      ordersCollection.find({}).toArray((err, documents) => {
+         res.send(documents);
+      });
+   });
+   app.post('/myOrders', (req, res) => {
+      const email = req.body.checkMail;
+      ordersCollection.find({ email: email }).toArray((err, admin) => {
+         res.send(admin);
+      });
+   });
+
+   app.post('/orderService', (req, res) => {
+      const order = req.body;
+      ordersCollection
+         .insertOne(order)
+         .then(result => res.send(result.insertedCount > 0));
+   });
 
    app.get('/allAdmins', (req, res) => {
       adminCollection.find({}).toArray((err, documents) => {
          res.send(documents);
       });
    });
-
    app.post('/addAAdmin', (req, res) => {
       const data = req.body;
       adminCollection
          .insertOne(data)
          .then(result => res.send(result.insertedCount > 0));
+   });
+   app.delete('/deleteAdmin', (req, res) => {
+      const email = req.body.email;
+      adminCollection
+         .findOneAndDelete({ email: email })
+         .then(result => res.send(result.ok > 0));
+   });
+
+   app.post('/addServices', (req, res) => {
+      const data = req.body;
+      serviceCollection
+         .insertOne(data)
+         .then(result => res.send(result.insertedCount > 0));
+   });
+   app.get('/allServices', (req, res) => {
+      serviceCollection.find({}).toArray((err, documents) => {
+         res.send(documents);
+      });
    });
 
    app.get('/loadReviews', (req, res) => {
@@ -40,7 +77,6 @@ client.connect(err => {
          res.send(documents);
       });
    });
-
    app.post('/addReviews', (req, res) => {
       const review = req.body.data;
       reviewCollection
@@ -53,6 +89,24 @@ client.connect(err => {
       adminCollection
          .findOneAndDelete({ email: email })
          .then(result => res.send(result.ok > 0));
+   });
+
+   app.post('/checkMail', (req, res) => {
+      const email = req.body.checkMail;
+      adminCollection.find({ email: email }).toArray((err, admin) => {
+         if (admin.length > 0) {
+            res.send(admin);
+         }
+      });
+   });
+
+   app.patch('/updateOrder', (req, res) => {
+      const { id, newStatus } = req.body;
+      ordersCollection.findOneAndUpdate(
+         { _id: id },
+         { $set: { status: newStatus } },
+         { upsert: true }
+      );
    });
 });
 
