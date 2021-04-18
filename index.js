@@ -71,6 +71,13 @@ client.connect(err => {
          res.send(documents);
       });
    });
+   app.delete('/deleteService', (req, res) => {
+      const id = req.body.id;
+      console.log(id);
+      serviceCollection
+         .findOneAndDelete({ _id: ObjectID(id) })
+         .then(result => res.send(result.ok > 0));
+   });
 
    app.get('/loadReviews', (req, res) => {
       reviewCollection.find({}).toArray((err, documents) => {
