@@ -73,7 +73,6 @@ client.connect(err => {
    });
    app.delete('/deleteService', (req, res) => {
       const id = req.body.id;
-      console.log(id);
       serviceCollection
          .findOneAndDelete({ _id: ObjectID(id) })
          .then(result => res.send(result.ok > 0));
